@@ -1,2 +1,2 @@
 # flask_restful_course
-Practice code from a Udemy Flask REST API course
+This repository contains all the practice code from an Udemy Flask RESTful API course
