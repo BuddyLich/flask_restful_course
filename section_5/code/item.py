@@ -1,17 +1,6 @@
-from flask import Flask, request
-from flask_restful import Resource, Api, reqparse
-from flask_jwt import JWT, jwt_required
-
-from security import authenticate, identity
-
-app = Flask(__name__)
-app.secret_key = "someSecretKeyThatIsNotMeantToDisplayedHere"
-api = Api(app)
-
-jwt = JWT(app, authenticate, identity)
-# it create a new route /auth
-
-items = []
+from flask_restful import Resource, reqparse
+from flask_jwt import jwt_required
+import sqlite3
 
 
 class Item(Resource):
@@ -26,16 +15,18 @@ class Item(Resource):
     # for the purpose of practice, only the get route require authentication
     @jwt_required()
     def get(self, name):
-        item = next(filter(lambda x: x["name"] == name, items), None)
-        # filter takes two arguements, a function and an iterables
-        # eventually filter() returns a filter object, which is an iterable
+        connection = sqlite3.connect('../data.db')
+        cursor = connection.cursor()
 
-        # if items are not duplicated, there should only be one object or None in this filter object
-        # so, we can use next() to get the item inside the filter object
-        # in case there's no object that match the filter and cause the error, we need a argument for the case that
-        # nothing match the filter, which is None
+        query = "SELECT * FROM items WHERE name=?"
+        result = cursor.execute(query, (name, ))
+        row = result.fetchone()
+        connection.close()
 
-        return {'item': item}, 200 if item else 404
+        if row:
+            return {"item": {"name": row[0], "price": row[1]}}
+
+        return {"message": "Item not found"}, 404
 
     def post(self, name):
         if next(filter(lambda x: x["name"] == name, items), None) is not None:
@@ -71,10 +62,3 @@ class Item(Resource):
 class ItemList(Resource):
     def get(self):
         return {"items": items}
-
-
-api.add_resource(Item, '/item/<string:name>')
-api.add_resource(ItemList, '/items')
-
-
-app.run(debug=True)
