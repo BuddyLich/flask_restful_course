@@ -27,7 +27,7 @@ class Item(Resource):
     @jwt_required()
     def get(self, name):
         item = next(filter(lambda x: x["name"] == name, items), None)
-        # filter takes two arguements, a function and an iterables
+        # filter takes two arguments, a function and an iterables
         # eventually filter() returns a filter object, which is an iterable
 
         # if items are not duplicated, there should only be one object or None in this filter object
