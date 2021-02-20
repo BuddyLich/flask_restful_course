@@ -8,6 +8,7 @@ from user import UserRegister
 from item import Item, ItemList
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = "someSecretKeyThatIsNotMeantToDisplayedHere"
 api = Api(app)
 
