@@ -1,4 +1,3 @@
-import sqlite3
 from db import db
 
 
@@ -9,45 +8,21 @@ class UserModel(db.Model):
     username = db.Column(db.String(80))
     password = db.Column(db.String(80))
 
-    def __init__(self, _id, username, password):
-        self.id = _id
+    def __init__(self, username, password):
         self.username = username
         self.password = password
 
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
     @classmethod
-    # def find_by_username(self, username):
     def find_by_username(cls, username):
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-
-        query = "SELECT * FROM users WHERE username=?"
-        result = cursor.execute(query, (username, ))
-        # the second argument inside execute() must be tuple
-        row = result.fetchone()
-        if row:
-            # user = User(row[0], row[1], row[2])
-            user = UserModel(*row)
-        else:
-            user = None
-
-        connection.close()
+        user = cls.query.filter_by(username=username).first()
         return user
 
     @classmethod
     # def find_by_username(self, username):
     def find_by_id(cls, id):
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-
-        query = "SELECT * FROM users WHERE id=?"
-        result = cursor.execute(query, (id,))
-        # the second argument inside execute() must be tuple
-        row = result.fetchone()
-        if row:
-            # user = User(row[0], row[1], row[2])
-            user = UserModel(*row)
-        else:
-            user = None
-
-        connection.close()
+        user = cls.query.filter_by(id=id).first()
         return user
